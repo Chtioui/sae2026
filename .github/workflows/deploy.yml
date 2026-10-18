@@ -1,0 +1,29 @@
+name: Déploiement Manuel sur Alwaysdata via SSH
+
+# Déclenchement manuel depuis l'onglet "Actions" de GitHub
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de la clé SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ALWAYSDATA_SSH_PRIVATE_KEY }}
+
+      - name: Déploiement sur Alwaysdata via rsync / SSH
+        run: |
+          # Désactivation de la vérification stricte de l'hôte pour éviter les blocages
+          mkdir -p ~/.ssh
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+
+          # Synchronisation des fichiers vers votre dossier Alwaysdata via SSH
+          # Remplacez <votre-utilisateur> et <votre-serveur> par vos identifiants Alwaysdata (ex: ssh-<votre-compte>.alwaysdata.net)
+          rsync -avz --delete ./ <votre-utilisateur>@<votre-serveur>:/home/<votre-utilisateur>/www/
+          
+          echo "Déploiement manuel terminé avec succès !"
